@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"path/filepath"
 
-	"go-web-mvp/ui"
+	"github.com/isuQuo/FineAnts/ui"
 
 	"github.com/justinas/nosurf"
 )
