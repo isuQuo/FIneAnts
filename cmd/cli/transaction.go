@@ -30,7 +30,7 @@ func importCSV(filename string) (Transactions, error) {
 
 	var transactions Transactions
 	for _, record := range records {
-		date, _ := time.Parse("2006-01-02", record[0])
+		date, _ := time.Parse("02/01/2006", record[0])
 		amount, _ := strconv.ParseFloat(record[1], 64)
 		description := record[2]
 
