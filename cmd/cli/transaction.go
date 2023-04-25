@@ -89,10 +89,20 @@ func (app *application) includeTransactions(description string) Transactions {
 	return filtered
 }
 
-func (app *application) includeAmount(amount float64) Transactions {
+func (app *application) greaterAmount(amount float64) Transactions {
 	var filtered Transactions
 	for _, transaction := range *app.transactions {
-		if transaction.Amount > amount {
+		if transaction.Amount >= amount {
+			filtered = append(filtered, transaction)
+		}
+	}
+	return filtered
+}
+
+func (app *application) lesserAmount(amount float64) Transactions {
+	var filtered Transactions
+	for _, transaction := range *app.transactions {
+		if transaction.Amount <= amount {
 			filtered = append(filtered, transaction)
 		}
 	}

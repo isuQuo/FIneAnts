@@ -26,7 +26,8 @@ func main() {
 	topTrendsXPtr := flag.Int("x", 0, "number of top trends to calculate")
 	excludeTransactionsPtr := flag.String("ex", "", "exclude transactions with this description")
 	includeTransactionsPtr := flag.String("in", "", "include transactions with this description")
-	includeAmountPtr := flag.Float64("ia", 0, "include transactions with this amount")
+	greaterAmountPtr := flag.Float64("ga", 0, "include transactions greater or equal than this amount")
+	lesserAmountPtr := flag.Float64("la", 0, "include transactions less or equal than this amount")
 	flag.Parse()
 
 	if *filenamePtr == "" {
@@ -55,8 +56,13 @@ func main() {
 		app.transactions = &transactions
 	}
 
-	if *includeAmountPtr != 0 {
-		transactions := app.includeAmount(*includeAmountPtr)
+	if *greaterAmountPtr != 0 {
+		transactions := app.greaterAmount(*greaterAmountPtr)
+		app.transactions = &transactions
+	}
+
+	if *lesserAmountPtr != 0 {
+		transactions := app.lesserAmount(*lesserAmountPtr)
 		app.transactions = &transactions
 	}
 
