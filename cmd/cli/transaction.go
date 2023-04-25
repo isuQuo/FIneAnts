@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -66,4 +67,34 @@ func (app *application) calculateTotalExpensesAndIncome() (float64, float64) {
 		}
 	}
 	return totalExpenses, totalIncome
+}
+
+func (app *application) excludeTransactions(description string) Transactions {
+	var filtered Transactions
+	for _, transaction := range *app.transactions {
+		if !strings.Contains(transaction.Description, description) {
+			filtered = append(filtered, transaction)
+		}
+	}
+	return filtered
+}
+
+func (app *application) includeTransactions(description string) Transactions {
+	var filtered Transactions
+	for _, transaction := range *app.transactions {
+		if strings.Contains(transaction.Description, description) {
+			filtered = append(filtered, transaction)
+		}
+	}
+	return filtered
+}
+
+func (app *application) includeAmount(amount float64) Transactions {
+	var filtered Transactions
+	for _, transaction := range *app.transactions {
+		if transaction.Amount > amount {
+			filtered = append(filtered, transaction)
+		}
+	}
+	return filtered
 }

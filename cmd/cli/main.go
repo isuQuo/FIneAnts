@@ -24,6 +24,9 @@ func main() {
 	totalExpensesPtr := flag.Bool("e", false, "calculate total expenses")
 	topTrendsPtr := flag.Int("t", 0, "calculate top trends")
 	topTrendsXPtr := flag.Int("x", 0, "number of top trends to calculate")
+	excludeTransactionsPtr := flag.String("ex", "", "exclude transactions with this description")
+	includeTransactionsPtr := flag.String("in", "", "include transactions with this description")
+	includeAmountPtr := flag.Float64("ia", 0, "include transactions with this amount")
 	flag.Parse()
 
 	if *filenamePtr == "" {
@@ -40,6 +43,21 @@ func main() {
 		errorLog:     errorLog,
 		infoLog:      infoLog,
 		transactions: &transactions,
+	}
+
+	if *excludeTransactionsPtr != "" {
+		transactions := app.excludeTransactions(*excludeTransactionsPtr)
+		app.transactions = &transactions
+	}
+
+	if *includeTransactionsPtr != "" {
+		transactions := app.includeTransactions(*includeTransactionsPtr)
+		app.transactions = &transactions
+	}
+
+	if *includeAmountPtr != 0 {
+		transactions := app.includeAmount(*includeAmountPtr)
+		app.transactions = &transactions
 	}
 
 	// Test for flags and call correct function
@@ -94,16 +112,29 @@ func main() {
 
 			// Loop through both payments and expenses
 			for _, txType := range []bool{true, false} {
+				// Filter transactions based on whether they are payments or expenses
+				filteredTypeTransactions := Transactions{}
+				for _, transaction := range filteredTransactions {
+					if (transaction.Amount >= 0) == txType {
+						filteredTypeTransactions = append(filteredTypeTransactions, transaction)
+					}
+				}
+
+				app.transactions = &filteredTypeTransactions
 				topTrends := app.findTopTrends(*topTrendsXPtr, txType)
-				if txType {
-					fmt.Printf("Top Payments Trends for %s to %s:\n", startDate.Format("02-01-2006"), endDate.Format("02-01-2006"))
-				} else {
-					fmt.Printf("Top Expenses Trends for %s to %s:\n", startDate.Format("02-01-2006"), endDate.Format("02-01-2006"))
+
+				// Check if there are any trends before printing the title and trends
+				if len(topTrends) > 0 {
+					if txType {
+						fmt.Printf("Top Payments Trends for %s to %s:\n", startDate.Format("02-01-2006"), endDate.Format("02-01-2006"))
+					} else {
+						fmt.Printf("Top Expenses Trends for %s to %s:\n", startDate.Format("02-01-2006"), endDate.Format("02-01-2006"))
+					}
+					for _, trend := range topTrends {
+						fmt.Printf("  %s: $%.2f\n", trend.Description, trend.TotalAmount)
+					}
+					fmt.Print("\n")
 				}
-				for _, trend := range topTrends {
-					fmt.Printf("  %s: $%.2f\n", trend.Description, trend.TotalAmount)
-				}
-				fmt.Print("\n")
 			}
 
 			app.transactions = oldTransactions
