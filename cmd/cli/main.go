@@ -43,27 +43,32 @@ func main() {
 		transactions: &transactions,
 	}
 
+	if *includeTransactionsPtr != "" && *excludeTransactionsPtr != "" {
+		fmt.Println("Please provide only one of -ex or -in flags")
+		return
+	}
+
 	// -ex flag
 	if *excludeTransactionsPtr != "" {
-		transactions := app.excludeTransactions(*excludeTransactionsPtr)
+		transactions := app.filterTransactions(*excludeTransactionsPtr, false)
 		app.transactions = &transactions
 	}
 
 	// -in flag
 	if *includeTransactionsPtr != "" {
-		transactions := app.includeTransactions(*includeTransactionsPtr)
+		transactions := app.filterTransactions(*includeTransactionsPtr, true)
 		app.transactions = &transactions
 	}
 
 	// -ga flag
 	if *greaterAmountPtr != 0 {
-		transactions := app.greaterAmount(*greaterAmountPtr)
+		transactions := app.filterAmount(*greaterAmountPtr, true)
 		app.transactions = &transactions
 	}
 
 	// -la flag
 	if *lesserAmountPtr != 0 {
-		transactions := app.lesserAmount(*lesserAmountPtr)
+		transactions := app.filterAmount(*lesserAmountPtr, false)
 		app.transactions = &transactions
 	}
 

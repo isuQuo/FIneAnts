@@ -69,40 +69,33 @@ func (app *application) calculateTotalExpensesAndIncome() (float64, float64) {
 	return totalExpenses, totalIncome
 }
 
-func (app *application) excludeTransactions(description string) Transactions {
+// Filter transactions by excluding or including a search term
+func (app *application) filterTransactions(description string, include bool) Transactions {
 	var filtered Transactions
+	searchTerms := strings.Split(description, "|")
+
 	for _, transaction := range *app.transactions {
-		if !strings.Contains(transaction.Description, description) {
+		matched := false
+		lowerDesc := strings.ToLower(transaction.Description)
+		for _, term := range searchTerms {
+			lowerTerm := strings.ToLower(term)
+			if strings.Contains(lowerDesc, lowerTerm) {
+				matched = true
+				break
+			}
+		}
+		if include == matched {
 			filtered = append(filtered, transaction)
 		}
 	}
 	return filtered
 }
 
-func (app *application) includeTransactions(description string) Transactions {
+// Filter transactions by amount
+func (app *application) filterAmount(amount float64, greater bool) Transactions {
 	var filtered Transactions
 	for _, transaction := range *app.transactions {
-		if strings.Contains(transaction.Description, description) {
-			filtered = append(filtered, transaction)
-		}
-	}
-	return filtered
-}
-
-func (app *application) greaterAmount(amount float64) Transactions {
-	var filtered Transactions
-	for _, transaction := range *app.transactions {
-		if transaction.Amount >= amount {
-			filtered = append(filtered, transaction)
-		}
-	}
-	return filtered
-}
-
-func (app *application) lesserAmount(amount float64) Transactions {
-	var filtered Transactions
-	for _, transaction := range *app.transactions {
-		if transaction.Amount <= amount {
+		if (greater && transaction.Amount >= amount) || (!greater && transaction.Amount <= amount) {
 			filtered = append(filtered, transaction)
 		}
 	}
