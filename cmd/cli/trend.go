@@ -12,11 +12,17 @@ type Trend struct {
 type Trends []Trend
 
 // Override sort.Interface methods
-func (t Trends) Len() int           { return len(t) }
-func (t Trends) Swap(i, j int)      { t[i], t[j] = t[j], t[i] }
-func (t Trends) Less(i, j int) bool { return t[i].TotalAmount > t[j].TotalAmount }
+func (t Trends) Len() int      { return len(t) }
+func (t Trends) Swap(i, j int) { t[i], t[j] = t[j], t[i] }
+func (t Trends) Less(i, j int, asc bool) bool {
+	if asc {
+		return t[i].TotalAmount < t[j].TotalAmount
+	} else {
+		return t[i].TotalAmount > t[j].TotalAmount
+	}
+}
 
-func (app *application) findTopTrends(topX int) Trends {
+func (app *application) findTopTrends(topX int, isPayment bool) Trends {
 	trends := make(Trends, 0)
 	descriptionAmountMap := make(map[string]float64)
 
@@ -35,7 +41,13 @@ func (app *application) findTopTrends(topX int) Trends {
 		})
 	}
 
-	sort.Sort(trends)
+	sort.Slice(trends, func(i, j int) bool {
+		if isPayment {
+			return trends[i].TotalAmount > trends[j].TotalAmount
+		}
+		return trends[i].TotalAmount < trends[j].TotalAmount
+	})
+
 	if topX > 0 && len(trends) > topX {
 		trends = trends[:topX]
 	}

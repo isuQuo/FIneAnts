@@ -50,7 +50,7 @@ func main() {
 	}
 
 	if *topTrendsPtr != 0 {
-		topTrends := app.findTopTrends(*topTrendsPtr)
+		topTrends := app.findTopTrends(*topTrendsPtr, false)
 		fmt.Println("Top Trends:")
 		for _, trend := range topTrends {
 			fmt.Printf("  %s: $%.2f\n", trend.Description, trend.TotalAmount)
@@ -92,12 +92,19 @@ func main() {
 
 			app.transactions = &filteredTransactions
 
-			topTrends := app.findTopTrends(*topTrendsXPtr)
-			fmt.Printf("Top Trends for %s to %s:\n", startDate.Format("02-01-2006"), endDate.Format("02-01-2006"))
-			for _, trend := range topTrends {
-				fmt.Printf("  %s: $%.2f\n", trend.Description, trend.TotalAmount)
+			// Loop through both payments and expenses
+			for _, txType := range []bool{true, false} {
+				topTrends := app.findTopTrends(*topTrendsXPtr, txType)
+				if txType {
+					fmt.Printf("Top Payments Trends for %s to %s:\n", startDate.Format("02-01-2006"), endDate.Format("02-01-2006"))
+				} else {
+					fmt.Printf("Top Expenses Trends for %s to %s:\n", startDate.Format("02-01-2006"), endDate.Format("02-01-2006"))
+				}
+				for _, trend := range topTrends {
+					fmt.Printf("  %s: $%.2f\n", trend.Description, trend.TotalAmount)
+				}
+				fmt.Print("\n")
 			}
-			fmt.Print("\n")
 
 			app.transactions = oldTransactions
 		}
