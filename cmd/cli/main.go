@@ -18,17 +18,27 @@ func main() {
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
 	filenamePtr := flag.String("f", "", "filename to process")
+
 	totalExpensesPtr := flag.Bool("e", false, "calculate total expenses")
+
 	topTrendsPtr := flag.Int("t", 0, "calculate top trends")
-	topTrendsXPtr := flag.Int("x", 0, "number of top trends to calculate")
+	topTrendsXPtr := flag.Int("tx", 0, "number of top trends to calculate")
+
 	excludeTransactionsPtr := flag.String("ex", "", "exclude transactions with this description")
 	includeTransactionsPtr := flag.String("in", "", "include transactions with this description")
+
 	greaterAmountPtr := flag.Float64("ga", 0, "include transactions greater or equal than this amount")
 	lesserAmountPtr := flag.Float64("la", 0, "include transactions less or equal than this amount")
+
 	flag.Parse()
 
 	if *filenamePtr == "" {
 		fmt.Println("Please provide a filename using the -f flag")
+		return
+	}
+
+	if *includeTransactionsPtr != "" && *excludeTransactionsPtr != "" {
+		fmt.Println("Please provide only one of -ex or -in flags")
 		return
 	}
 
@@ -43,34 +53,10 @@ func main() {
 		transactions: &transactions,
 	}
 
-	if *includeTransactionsPtr != "" && *excludeTransactionsPtr != "" {
-		fmt.Println("Please provide only one of -ex or -in flags")
-		return
-	}
-
-	// -ex flag
-	if *excludeTransactionsPtr != "" {
-		transactions := app.filterTransactions(*excludeTransactionsPtr, false)
-		app.transactions = &transactions
-	}
-
-	// -in flag
-	if *includeTransactionsPtr != "" {
-		transactions := app.filterTransactions(*includeTransactionsPtr, true)
-		app.transactions = &transactions
-	}
-
-	// -ga flag
-	if *greaterAmountPtr != 0 {
-		transactions := app.filterAmount(*greaterAmountPtr, true)
-		app.transactions = &transactions
-	}
-
-	// -la flag
-	if *lesserAmountPtr != 0 {
-		transactions := app.filterAmount(*lesserAmountPtr, false)
-		app.transactions = &transactions
-	}
+	app.handleExcludeTransactionsFlag(*excludeTransactionsPtr)
+	app.handleIncludeTransactionsFlag(*includeTransactionsPtr)
+	app.handleGreaterAmountFlag(*greaterAmountPtr)
+	app.handleLesserAmountFlag(*lesserAmountPtr)
 
 	// After filtering transactions, check if there are any left
 	if len(*app.transactions) == 0 {
@@ -78,20 +64,9 @@ func main() {
 		return
 	}
 
-	// -e flag
 	if *totalExpensesPtr {
-		totalExpenses, totalIncome := app.calculateTotalExpensesAndIncome()
-		fmt.Printf("Total Expenses: $%.2f\n", totalExpenses)
-		fmt.Printf("Total Income: $%.2f\n", totalIncome)
+		app.handleTotalExpensesFlag()
 	}
-
-	// -t flag
-	if *topTrendsPtr != 0 {
-		app.printTopTrends(*topTrendsPtr, false)
-	}
-
-	// -x flag
-	if *topTrendsXPtr != 0 {
-		app.printTopTrends(*topTrendsXPtr, true)
-	}
+	app.handleTopTrendsFlag(*topTrendsPtr, false)
+	app.handleTopTrendsXFlag(*topTrendsXPtr, true)
 }
