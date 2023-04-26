@@ -81,7 +81,7 @@ func (app *application) generateStartEndDates() (map[time.Time]time.Time, []time
 	return startEndDates, keys
 }
 
-// trends.go
+// Print top X trends for a given date range
 func (app *application) printTopTransactionTrends(startDate, endDate time.Time, topX int, isPayment bool) {
 	oldTransactions := app.transactions
 	filteredTransactions := app.filterByDateRange(startDate, endDate)
@@ -144,6 +144,7 @@ func (app *application) printTopTrends(topX int, filterByDate bool) {
 		for _, txType := range []bool{true, false} {
 			app.printTopTransactionTrends(startDate, endDate, topX, txType)
 		}
+		fmt.Println("--------------------------------------------------")
 
 		app.transactions = oldTransactions
 	}

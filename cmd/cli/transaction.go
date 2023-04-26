@@ -54,6 +54,7 @@ func (app *application) filterByDateRange(startDate, endDate time.Time) Transact
 			filtered = append(filtered, transaction)
 		}
 	}
+
 	return filtered
 }
 
@@ -66,6 +67,7 @@ func (app *application) calculateTotalExpensesAndIncome() (float64, float64) {
 			totalIncome += transaction.Amount
 		}
 	}
+
 	return totalExpenses, totalIncome
 }
 
@@ -88,6 +90,7 @@ func (app *application) filterTransactions(description string, include bool) Tra
 			filtered = append(filtered, transaction)
 		}
 	}
+
 	return filtered
 }
 
@@ -99,5 +102,18 @@ func (app *application) filterAmount(amount float64, greater bool) Transactions 
 			filtered = append(filtered, transaction)
 		}
 	}
+
+	return filtered
+}
+
+// Filter transactions by date
+func (app *application) filterDate(date time.Time, after bool) Transactions {
+	var filtered Transactions
+	for _, transaction := range *app.transactions {
+		if (after && transaction.Date.After(date)) || (!after && transaction.Date.Before(date)) {
+			filtered = append(filtered, transaction)
+		}
+	}
+
 	return filtered
 }

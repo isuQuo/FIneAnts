@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // -ex flag
 func (app *application) handleExcludeTransactionsFlag(description string) {
@@ -52,5 +54,31 @@ func (app *application) handleTopTrendsFlag(numberOfTrends int, filterByDate boo
 func (app *application) handleTopTrendsXFlag(numberOfTrends int, filterByDate bool) {
 	if numberOfTrends != 0 {
 		app.printTopTrends(numberOfTrends, true)
+	}
+}
+
+// -gd flag
+func (app *application) handleGreaterDateFlag(date string) {
+	if date != "" {
+		transactions := app.filterDate(app.parseDate(date), true)
+		app.transactions = &transactions
+	}
+}
+
+// -ld flag
+func (app *application) handleLesserDateFlag(date string) {
+	if date != "" {
+		transactions := app.filterDate(app.parseDate(date), false)
+		app.transactions = &transactions
+	}
+}
+
+// -md flag
+func (app *application) handleMiddleDateFlag(dates []string) {
+	if len(dates) == 2 {
+		startDate := app.parseDate(dates[0])
+		endDate := app.parseDate(dates[1])
+		transactions := app.filterByDateRange(startDate, endDate)
+		app.transactions = &transactions
 	}
 }
