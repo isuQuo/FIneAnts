@@ -39,8 +39,12 @@ func (app *application) handleLesserAmountFlag(amount float64) {
 // -e flag
 func (app *application) handleTotalExpensesFlag() {
 	totalExpenses, totalIncome := app.calculateTotalExpensesAndIncome()
+	savingsRate := app.calculateSavingsRate(totalIncome, totalExpenses)
 	fmt.Printf("Total Expenses: $%.2f\n", totalExpenses)
 	fmt.Printf("Total Income: $%.2f\n", totalIncome)
+	fmt.Println()
+	fmt.Printf("Total: $%.2f\n", totalIncome-totalExpenses)
+	fmt.Printf("Savings Rate: %.2f%%\n", savingsRate)
 }
 
 // -t flag

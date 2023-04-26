@@ -63,17 +63,7 @@ func importCSV(filename string) (Transactions, error) {
 	return transactions, nil
 }
 
-func (app *application) filterByDateRange(startDate, endDate time.Time) Transactions {
-	var filtered Transactions
-	for _, transaction := range *app.transactions {
-		if transaction.Date.After(startDate) && transaction.Date.Before(endDate) {
-			filtered = append(filtered, transaction)
-		}
-	}
-
-	return filtered
-}
-
+// calculateTotalExpensesAndIncome calculates total expenses and income
 func (app *application) calculateTotalExpensesAndIncome() (float64, float64) {
 	var totalExpenses, totalIncome float64
 	for _, transaction := range *app.transactions {
@@ -131,5 +121,15 @@ func (app *application) filterDate(date time.Time, after bool) Transactions {
 		}
 	}
 
+	return filtered
+}
+
+func (app *application) filterTransactionsByType(transactions Transactions, txType TransactionType) Transactions {
+	filtered := Transactions{}
+	for _, transaction := range transactions {
+		if transaction.Type == txType {
+			filtered = append(filtered, transaction)
+		}
+	}
 	return filtered
 }
