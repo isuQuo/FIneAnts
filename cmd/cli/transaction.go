@@ -8,12 +8,11 @@ import (
 	"time"
 )
 
-type TransactionType float64
+type TransactionType string
 
 const (
-	// iota is a special Go constant that is used to generate a set of related but distinct constants.
-	Payment TransactionType = iota
-	Expense
+	Income  TransactionType = "Income"
+	Expense TransactionType = "Expense"
 )
 
 type Transaction struct {
@@ -47,7 +46,7 @@ func importCSV(filename string) (Transactions, error) {
 		if amount < 0 {
 			transactionType = Expense
 		} else {
-			transactionType = Payment
+			transactionType = Income
 		}
 
 		transaction := Transaction{
@@ -67,7 +66,7 @@ func importCSV(filename string) (Transactions, error) {
 func (app *application) calculateTotalExpensesAndIncome() (float64, float64) {
 	var totalExpenses, totalIncome float64
 	for _, transaction := range *app.transactions {
-		if transaction.Type == Payment {
+		if transaction.Type == Income {
 			totalIncome += transaction.Amount
 		} else {
 			totalExpenses += -transaction.Amount

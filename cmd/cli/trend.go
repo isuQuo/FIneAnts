@@ -47,7 +47,7 @@ func (app *application) calculateTopTrends(transactions Transactions, topX int, 
 	}
 
 	sort.Slice(trends, func(i, j int) bool {
-		if txType == Payment {
+		if txType == Income {
 			return trends[i].TotalAmount > trends[j].TotalAmount
 		}
 		return trends[i].TotalAmount < trends[j].TotalAmount
@@ -63,8 +63,8 @@ func (app *application) calculateTopTrends(transactions Transactions, topX int, 
 // printTopTrendsByDate prints top trends for a given date range
 func (app *application) printTopTrendsByDate(startDate, endDate time.Time, topTrends []Trend, txType TransactionType) {
 	if len(topTrends) > 0 {
-		if txType == Payment {
-			fmt.Printf("Top Payments Trends for %s to %s:\n", startDate.Format("02-01-2006"), endDate.Format("02-01-2006"))
+		if txType == Income {
+			fmt.Printf("Top Incomes Trends for %s to %s:\n", startDate.Format("02-01-2006"), endDate.Format("02-01-2006"))
 		} else {
 			fmt.Printf("Top Expenses Trends for %s to %s:\n", startDate.Format("02-01-2006"), endDate.Format("02-01-2006"))
 		}
@@ -89,12 +89,12 @@ func (app *application) printTopTrends(topX int, filterByDate bool) {
 		filteredTransactions := app.filterByDateRange(startDate, endDate)
 
 		var totalIncomes, totalExpenses float64
-		for _, txType := range []TransactionType{Payment, Expense} {
+		for _, txType := range []TransactionType{Income, Expense} {
 			filteredTypeTransactions := app.filterTransactionsByType(filteredTransactions, txType)
 			topTrends := app.calculateTopTrends(filteredTypeTransactions, topX, txType)
 			app.printTopTrendsByDate(startDate, endDate, topTrends, txType)
 
-			if txType == Payment {
+			if txType == Income {
 				for _, trend := range topTrends {
 					totalIncomes += trend.TotalAmount
 				}
