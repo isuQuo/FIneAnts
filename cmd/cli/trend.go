@@ -25,7 +25,7 @@ func (t Trends) Less(i, j int, asc bool) bool {
 	}
 }
 
-func (app *application) findTopTrends(topX int, isPayment bool) Trends {
+func (app *application) findTopTrends(topX int, txType TransactionType) Trends {
 	trends := make(Trends, 0)
 	descriptionAmountMap := make(map[string]float64)
 
@@ -45,7 +45,7 @@ func (app *application) findTopTrends(topX int, isPayment bool) Trends {
 	}
 
 	sort.Slice(trends, func(i, j int) bool {
-		if isPayment {
+		if txType == Payment {
 			return trends[i].TotalAmount > trends[j].TotalAmount
 		}
 		return trends[i].TotalAmount < trends[j].TotalAmount
@@ -82,23 +82,23 @@ func (app *application) generateStartEndDates() (map[time.Time]time.Time, []time
 }
 
 // Print top X trends for a given date range
-func (app *application) printTopTransactionTrends(startDate, endDate time.Time, topX int, isPayment bool) {
+func (app *application) printTopTransactionTrends(startDate, endDate time.Time, topX int, txType TransactionType) {
 	oldTransactions := app.transactions
 	filteredTransactions := app.filterByDateRange(startDate, endDate)
 
 	// Filter transactions based on whether they are payments or expenses
 	filteredTypeTransactions := Transactions{}
 	for _, transaction := range filteredTransactions {
-		if (transaction.Amount >= 0) == isPayment {
+		if transaction.Type == txType {
 			filteredTypeTransactions = append(filteredTypeTransactions, transaction)
 		}
 	}
 
 	app.transactions = &filteredTypeTransactions
-	topTrends := app.findTopTrends(topX, isPayment)
+	topTrends := app.findTopTrends(topX, txType)
 
 	if len(topTrends) > 0 {
-		if isPayment {
+		if txType == Payment {
 			fmt.Printf("Top Payments Trends for %s to %s:\n", startDate.Format("02-01-2006"), endDate.Format("02-01-2006"))
 		} else {
 			fmt.Printf("Top Expenses Trends for %s to %s:\n", startDate.Format("02-01-2006"), endDate.Format("02-01-2006"))
@@ -141,7 +141,7 @@ func (app *application) printTopTrends(topX int, filterByDate bool) {
 			app.transactions = &filteredTransactions
 		}
 
-		for _, txType := range []bool{true, false} {
+		for _, txType := range []TransactionType{Payment, Expense} {
 			app.printTopTransactionTrends(startDate, endDate, topX, txType)
 		}
 		fmt.Println("--------------------------------------------------")

@@ -8,10 +8,19 @@ import (
 	"time"
 )
 
+type TransactionType float64
+
+const (
+	// iota is a special Go constant that is used to generate a set of related but distinct constants.
+	Payment TransactionType = iota
+	Expense
+)
+
 type Transaction struct {
 	Date        time.Time
 	Amount      float64
 	Description string
+	Type        TransactionType
 }
 
 type Transactions []Transaction
@@ -34,11 +43,18 @@ func importCSV(filename string) (Transactions, error) {
 		date, _ := time.Parse("02/01/2006", record[0])
 		amount, _ := strconv.ParseFloat(record[1], 64)
 		description := record[2]
+		var transactionType TransactionType
+		if amount < 0 {
+			transactionType = Expense
+		} else {
+			transactionType = Payment
+		}
 
 		transaction := Transaction{
 			Date:        date,
 			Amount:      amount,
 			Description: description,
+			Type:        transactionType,
 		}
 
 		transactions = append(transactions, transaction)
@@ -61,10 +77,10 @@ func (app *application) filterByDateRange(startDate, endDate time.Time) Transact
 func (app *application) calculateTotalExpensesAndIncome() (float64, float64) {
 	var totalExpenses, totalIncome float64
 	for _, transaction := range *app.transactions {
-		if transaction.Amount < 0 {
-			totalExpenses += -transaction.Amount
-		} else {
+		if transaction.Type == Payment {
 			totalIncome += transaction.Amount
+		} else {
+			totalExpenses += -transaction.Amount
 		}
 	}
 
